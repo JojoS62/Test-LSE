@@ -1,0 +1,6 @@
+BUILD
+*.pyc
+
+.vscode/*
+.vscode/
+*.code-workspace

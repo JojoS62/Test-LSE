@@ -1,0 +1,26 @@
+{
+    "requires": ["bare-metal",  "rtos-api", "events", "mbed-trace", "drivers-usb"],
+    "target_overrides": {
+        "*": {
+            "platform.stdio-baud-rate": 115200,
+            "platform.stdio-convert-newlines": true,
+            "mbed-trace.enable": 1,
+            "mbed-trace.max-level": "TRACE_LEVEL_INFO"
+        },
+        "NUCLEO_F103RB": {
+            "target.device_has_remove": ["STDIO_MESSAGES"]
+        },
+        "BLUEPILL_F103CB": {
+            "target.c_lib": "small",
+            "target.tickless-from-us-ticker": true
+        },
+        "BLUEPILL_F103C8": {
+            "target.c_lib": "small",
+            "target.tickless-from-us-ticker": true
+        },      
+        "NODE_LPC812": {
+        },
+        "NODE_LPC824": {
+        }      
+    }
+}
