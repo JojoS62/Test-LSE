@@ -3,8 +3,11 @@
 simple test program for LSE oscillator drive load setting.
 
 How to use:
-- connect a frequency meter to PA_8
+- connect a frequency meter to PA_8 (MCO, master clock output)
 - connect serial terminal to stdio
+
+expected output:
+ 32.768 kHz signal at modal-content  
 
 keys:  
  0: turn off LSE  
