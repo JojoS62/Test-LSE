@@ -57,7 +57,7 @@ void setLSE_DriveLoad(uint level)
 }
 
 int main() {
-    printf("\n\nTest STM32H743VI LSE\n");
+    printf("\n\nTest LSE drive load level configuration\n");
     fflush(stdout);
 
     // enable MCO output (PA_8)
