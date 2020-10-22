@@ -1,20 +1,25 @@
 #include "mbed.h"
 
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) ||\
-    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
-constexpr uint32_t lse_drive_levels[] = {
-    RCC_LSE_LOWPOWER_MODE,
-    RCC_LSE_HIGHDRIVE_MODE
-};
-#else
-constexpr uint32_t lse_drive_levels[] = {
-    RCC_LSEDRIVE_LOW,
-    RCC_LSEDRIVE_MEDIUMLOW,
-    RCC_LSEDRIVE_MEDIUMHIGH,
-    RCC_LSEDRIVE_HIGH
-};
+
+#if defined(RCC_LSE_HIGHDRIVE_MODE) || defined(RCC_LSEDRIVE_HIGH)
+    #define LSE_CONFIG_AVAILABLE
 #endif
 
+#ifdef LSE_CONFIG_AVAILABLE
+    #if  RCC_LSE_HIGHDRIVE_MODE
+        constexpr uint32_t lse_drive_levels[] = {
+            RCC_LSE_LOWPOWER_MODE,
+            RCC_LSE_HIGHDRIVE_MODE
+        };
+    #else
+        constexpr uint32_t lse_drive_levels[] = {
+            RCC_LSEDRIVE_LOW,
+            RCC_LSEDRIVE_MEDIUMLOW,
+            RCC_LSEDRIVE_MEDIUMHIGH,
+            RCC_LSEDRIVE_HIGH
+        };
+    #endif
+#endif
 
 DigitalOut  led1(LED1, 1);
 
@@ -33,6 +38,7 @@ void enableLSE(bool enable)
 
 void setLSE_DriveLoad(uint level)
 {
+#ifdef LSE_CONFIG_AVAILABLE    
     printf("set LSE drive load: %d\n", level);
 
     if (level >= sizeof(lse_drive_levels)/sizeof(lse_drive_levels[0])) {
@@ -43,8 +49,7 @@ void setLSE_DriveLoad(uint level)
     // drive level can only be changed when LSE is off
     enableLSE(false);
 
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) ||\
-    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
+#if defined(RCC_LSE_HIGHDRIVE_MODE)
     HAL_RCCEx_SelectLSEMode(lse_drive_levels[level]);
 #else
     // set LSE drive level
@@ -54,6 +59,9 @@ void setLSE_DriveLoad(uint level)
 
     // drive level can only be changed when LSE is off
     enableLSE(true);
+#else
+    printf("set LSE drive load not available\n");
+#endif
 }
 
 int main() {
@@ -61,7 +69,9 @@ int main() {
     fflush(stdout);
 
     // enable MCO output (PA_8)
+#ifdef RCC_MCO1SOURCE_LSE
     HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_LSE, RCC_MCODIV_1);
+#endif
 
     while (1) {
         char ch = getc(stdin);
@@ -83,9 +93,12 @@ int main() {
             break;
 
         default:
+#ifdef LSE_CONFIG_AVAILABLE    
             if ((ch >= '1') && (ch <  '1' + sizeof(lse_drive_levels)/sizeof(lse_drive_levels[0]))) {
                 setLSE_DriveLoad(ch - '1');
             }
+#endif
+            break;
         }
    }
 }
